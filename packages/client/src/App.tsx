@@ -1,4 +1,4 @@
-import ChatBot from './components/ui/ChatBot.tsx';
+import ChatBot from './components/ui/chat/ChatBot.tsx';
 
 function App() {
    return (

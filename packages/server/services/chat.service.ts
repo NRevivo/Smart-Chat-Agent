@@ -10,6 +10,7 @@ type ChatResponse = {
    id: string;
    message: string;
 };
+
 // Public interface
 //Leaky abstraction
 export const chatService = {

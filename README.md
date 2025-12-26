@@ -11,6 +11,27 @@ A full-stack web application that leverages AI to summarize and analyze customer
 - **Type-Safe Development**: Full TypeScript implementation across frontend and backend
 - **Monorepo Architecture**: Scalable project structure with separate client and server packages
 
+## 🤖 Smart Chat Agent
+
+The project includes a sophisticated AI agent capable of handling various types of user requests through intelligent routing and specialized tools:
+
+- **Intent Classification**: Automatically routes user messages to the most appropriate handler:
+   - 🌤️ **Weather**: Fetches real-time weather data using OpenWeatherMap API
+   - 🧮 **Math**: Performs safety-checked mathematical calculations
+   - 💱 **Exchange**: Provides currency exchange rates (ILS)
+   - 💬 **General Chat**: Handles conversational queries with full context awareness
+
+- **Context Retention**:
+   - Remembers conversation history across messages
+   - Persists history to disk (`history.json`)
+   - Supports context injection for coherent multi-turn conversations
+   - Smart context management with `/reset` command support
+
+- **Tool Integration**:
+   - **Weather Tool**: Integration with external weather APIs
+   - **Math Tool**: Secure expression evaluation using `mathjs`
+   - **Exchange Tool**: Currency rate lookup service
+
 ## 🛠 Tech Stack
 
 ### Frontend
@@ -32,6 +53,7 @@ A full-stack web application that leverages AI to summarize and analyze customer
 - **Prisma** - ORM for database management
 - **OpenAI API** - AI-powered review summarization
 - **Zod** - Schema validation
+- **mathjs** - Secure mathematical evaluation
 
 ### Development Tools
 
@@ -72,6 +94,7 @@ my-app/
 - Node.js compatible environment
 - MySQL database
 - OpenAI API key
+- OpenWeatherMap API key (for weather features)
 
 ### Installation
 
@@ -94,6 +117,7 @@ bun install
 ```env
 DATABASE_URL=mysql://user:password@localhost:3306/review_summarizer
 OPENAI_API_KEY=your_openai_api_key_here
+OPENWEATHER_API_KEY=your_openweather_api_key_here
 ```
 
 4. Set up the database
@@ -126,7 +150,7 @@ npm run dev --prefix packages/server
 
 1. **View Products & Reviews**: Browse products and their associated customer reviews
 2. **Summarize Reviews**: Get AI-generated summaries of product reviews
-3. **Chat Interface**: Ask questions about products and reviews using the interactive chat
+3. **Chat Interface**: Interactive chat capable of verifying weather, calculating math, checking currency rates, and general conversation with context retention.
 
 ## 🔄 API Endpoints
 

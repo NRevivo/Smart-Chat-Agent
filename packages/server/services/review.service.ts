@@ -19,7 +19,7 @@ export const reviewService = {
 
       const response = await llmClient.generateText({
          model: 'gpt-4o-mini',
-         prompt,
+         messages: [{ role: 'user', content: prompt }],
          temperature: 0.2,
          maxTokens: 500,
       });

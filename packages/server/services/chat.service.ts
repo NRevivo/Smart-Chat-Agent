@@ -66,14 +66,17 @@ export const chatService = {
             case 'generalChat':
             default:
                // Call LLM with full conversation history
+               const messages: any[] = [
+                  { role: 'system', content: SYSTEM_PROMPT },
+                  ...history,
+                  { role: 'user', content: prompt },
+               ];
+
                const response = await llmClient.generateText({
                   model: 'gpt-4o-mini',
-                  instructions: SYSTEM_PROMPT,
-                  prompt,
+                  messages,
                   temperature: 0.7,
                   maxTokens: 300,
-                  previousResponseId:
-                     conversationRepository.getLastResponseId(conversationId),
                });
 
                botMessage = response.text;

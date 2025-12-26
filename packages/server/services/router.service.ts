@@ -43,7 +43,7 @@ export const routerService = {
 
          const response = await llmClient.generateText({
             model: 'gpt-4o-mini',
-            prompt,
+            messages: [{ role: 'user', content: prompt }],
             temperature: 0.1, // Low temperature for consistent classification
             maxTokens: 100,
          });

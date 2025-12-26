@@ -4,13 +4,16 @@ const client = new OpenAI({
    apiKey: process.env.OPENAI_API_KEY,
 });
 
+export type Message = {
+   role: 'user' | 'assistant' | 'system';
+   content: string;
+};
+
 type GenerateTextOptions = {
    model?: string;
-   prompt: string;
-   instructions?: string;
+   messages: Message[];
    temperature?: number;
    maxTokens?: number;
-   previousResponseId?: string;
 };
 
 type GenerateTextResult = {
@@ -21,23 +24,20 @@ type GenerateTextResult = {
 export const llmClient = {
    async generateText({
       model = 'gpt-4o-mini',
-      instructions,
-      prompt,
+      messages,
       temperature = 0.2,
       maxTokens = 300,
-      previousResponseId,
    }: GenerateTextOptions): Promise<GenerateTextResult> {
-      const response = await client.responses.create({
+      const response = await client.chat.completions.create({
          model,
-         input: prompt,
-         instructions,
+         messages,
          temperature,
-         max_output_tokens: maxTokens,
-         previous_response_id: previousResponseId,
+         max_tokens: maxTokens,
       });
+
       return {
          id: response.id,
-         text: response.output_text,
+         text: response.choices[0]?.message?.content || '',
       };
    },
 };

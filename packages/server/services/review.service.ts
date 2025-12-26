@@ -1,8 +1,7 @@
 import { type Review } from '@prisma/client';
 import { reviewRepository } from '../repositories/review.repository';
-import OpenAI from 'openai';
-
-const client = new OpenAI();
+import { llmClient } from '../llm/client';
+import template from '../prompts/summarize-reviews.txt';
 
 export const reviewService = {
    async getReviews(productId: number): Promise<Review[]> {
@@ -16,20 +15,14 @@ export const reviewService = {
          .filter(Boolean)
          .join('\n\n');
 
-      const prompt = `
-Summarize the following customer reviews into a short paragraph,
-highlighting the key themes, both positive and negative:
+      const prompt = template.replace('{{reviews}}', joinedReviews);
 
-${joinedReviews}
-    `;
-
-      const response = await client.responses.create({
+      const response = await llmClient.generateText({
          model: 'gpt-4o-mini',
-         input: prompt,
+         prompt,
          temperature: 0.2,
-         max_output_tokens: 500,
+         maxTokens: 500,
       });
-
-      return response.output_text;
+      return response.text;
    },
 };

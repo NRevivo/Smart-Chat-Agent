@@ -1,105 +1,62 @@
-// Chat agent that routes user input to appropriate tools or LLM
-import { conversationRepository } from '../repositories/conversation.repository';
+// General chat handler - calls LLM with full conversation history
 import { llmClient } from '../llm/client';
 import { memoryManager } from './memory.manager';
-import { routerService } from './router.service';
-import { toolsService } from './tools.service';
-
-type ChatResponse = {
-   id: string;
-   message: string;
-};
+import { handleUserMessage } from '../index';
 
 type Message = {
    role: 'user' | 'assistant' | 'system';
    content: string;
 };
 
+type ChatResponse = {
+   id: string;
+   message: string;
+};
+
 const SYSTEM_PROMPT = `You are a helpful AI assistant. You can help with various tasks including weather inquiries, mathematical calculations, currency conversions, and general conversations. Be concise and helpful in your responses.`;
 
 // Public interface
 export const chatService = {
-   // Routes: /reset → load history → classify intent → tool/LLM → save history
+   // API method for UI - uses the orchestration function from index.ts
    async sendMessage(
       prompt: string,
       conversationId: string
    ): Promise<ChatResponse> {
       try {
-         // 1. Check for /reset command
-         if (prompt.trim() === '/reset') {
-            await memoryManager.resetHistory();
-            return {
-               id: 'reset',
-               message: 'Conversation history has been reset. Welcome back!',
-            };
-         }
-
-         // 2. Load existing history
+         // Load existing history
          const history: Message[] = await memoryManager.loadHistory();
 
-         // 3. Use RouterService to classify intent
-         const classification = await routerService.classifyIntent(prompt);
-
-         let botMessage: string;
-         let responseId: string = '';
-
-         // 4. Handle different intents
-         switch (classification.intent) {
-            case 'weather':
-               botMessage = await toolsService.getWeather(
-                  classification.parameter || ''
-               );
-               break;
-
-            case 'math':
-               botMessage = toolsService.calculateMath(
-                  classification.parameter || ''
-               );
-               break;
-
-            case 'exchange':
-               botMessage = toolsService.getExchangeRate(
-                  classification.parameter || ''
-               );
-               break;
-
-            case 'generalChat':
-            default:
-               // Call LLM with full conversation history
-               const messages: any[] = [
-                  { role: 'system', content: SYSTEM_PROMPT },
-                  ...history,
-                  { role: 'user', content: prompt },
-               ];
-
-               const response = await llmClient.generateText({
-                  model: 'gpt-4o-mini',
-                  messages,
-                  temperature: 0.7,
-                  maxTokens: 300,
-               });
-
-               botMessage = response.text;
-               responseId = response.id;
-               conversationRepository.setLastResponseId(
-                  conversationId,
-                  responseId
-               );
-               break;
-         }
-
-         // 5. Save updated history
-         const updatedHistory: Message[] = [
-            ...history,
-            { role: 'user', content: prompt },
-            { role: 'assistant', content: botMessage },
-         ];
-         await memoryManager.saveHistory(updatedHistory);
+         // Use the centralized orchestration function
+         const result = await handleUserMessage(prompt, history);
 
          return {
-            id: responseId || 'tool-response',
-            message: botMessage,
+            id: conversationId,
+            message: result.botMessage,
          };
+      } catch (error) {
+         console.error('Chat service error:', error);
+         throw error;
+      }
+   },
+
+   // General chat with LLM - ONLY place that injects full conversation history
+   async generalChat(history: Message[], userInput: string): Promise<string> {
+      try {
+         // Build messages array with system prompt, history, and new user input
+         const messages: any[] = [
+            { role: 'system', content: SYSTEM_PROMPT },
+            ...history,
+            { role: 'user', content: userInput },
+         ];
+
+         const response = await llmClient.generateText({
+            model: 'gpt-4o-mini',
+            messages,
+            temperature: 0.7,
+            maxTokens: 300,
+         });
+
+         return response.text;
       } catch (error) {
          console.error('Chat service error:', error);
          throw error;

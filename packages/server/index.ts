@@ -11,6 +11,8 @@ import { memoryManager } from './services/memory.manager';
 import { routerService } from './services/router.service';
 import { toolsService } from './services/tools.service';
 import { chatService } from './services/chat.service';
+import { MATH_TRANSLATION_PROMPT } from './prompts/prompts';
+import { llmClient } from './llm/client';
 
 dotenv.config();
 
@@ -49,28 +51,84 @@ export async function handleUserMessage(
    // =========================================================================
    const classification = await routerService.classifyIntent(userInput);
 
+   // =========================================================================
+   // 2.1. LOG RAW CLASSIFICATION (Required for submission)
+   // =========================================================================
+   console.log(
+      '🔍 Router Classification:',
+      JSON.stringify(classification, null, 2)
+   );
+
+   // =========================================================================
+   // 2.2. VALIDATE CLASSIFICATION
+   // Check confidence threshold and JSON structure
+   // =========================================================================
+   const CONFIDENCE_THRESHOLD = 0.6;
+   let validatedIntent = classification.intent;
+
+   if (!classification || typeof classification.confidence !== 'number') {
+      console.warn(
+         '⚠️  Invalid classification structure, falling back to generalChat'
+      );
+      validatedIntent = 'generalChat';
+   } else if (classification.confidence < CONFIDENCE_THRESHOLD) {
+      console.warn(
+         `⚠️  Low confidence (${classification.confidence.toFixed(2)}), falling back to generalChat`
+      );
+      validatedIntent = 'generalChat';
+   }
+
    let botMessage: string;
 
-   // Route based on intent
-   switch (classification.intent) {
-      case 'weather':
+   // Route based on validated intent
+   switch (validatedIntent) {
+      case 'getWeather':
          // Tool: Weather (no history injection)
          botMessage = await toolsService.getWeather(
-            classification.parameter || ''
+            classification.parameters.city || ''
          );
          break;
 
-      case 'math':
-         // Tool: Math Calculator (no history injection)
-         botMessage = toolsService.calculateMath(
-            classification.parameter || ''
-         );
+      case 'calculateMath':
+         // ====================================================================
+         // 2.3. MATH TRANSLATION (Chain of Thought)
+         // Detect if input is a word problem vs pure math expression
+         // ====================================================================
+         let mathExpression = classification.parameters.expression || '';
+
+         // Check if the expression contains words (word problem)
+         // Pure math: "5 + 3", "sqrt(144)", "2^8"
+         // Word problem: "I have 5 apples and bought 3 more"
+         const containsWords = /[a-zA-Z]{2,}/.test(mathExpression);
+
+         if (containsWords) {
+            console.log(
+               '📝 Detected word problem, translating to expression...'
+            );
+
+            // Call LLM to translate word problem to expression
+            const translationPrompt = `${MATH_TRANSLATION_PROMPT}\n\nUser: "${mathExpression}"`;
+
+            const translationResponse = await llmClient.generateText({
+               model: 'gpt-4o-mini',
+               messages: [{ role: 'user', content: translationPrompt }],
+               temperature: 0.2,
+               maxTokens: 100,
+            });
+
+            // Extract the translated expression
+            mathExpression = translationResponse.text.trim();
+            console.log('🔢 Translated expression:', mathExpression);
+         }
+
+         // Tool: Math Calculator (deterministic, no LLM)
+         botMessage = toolsService.calculateMath(mathExpression);
          break;
 
-      case 'exchange':
+      case 'getExchangeRate':
          // Tool: Exchange Rate (no history injection)
          botMessage = toolsService.getExchangeRate(
-            classification.parameter || ''
+            classification.parameters.currencyCode || ''
          );
          break;
 

@@ -2,6 +2,7 @@
 import { llmClient } from '../llm/client';
 import { memoryManager } from './memory.manager';
 import { handleUserMessage } from '../index';
+import { GENERAL_CHAT_SYSTEM_PROMPT } from '../prompts/prompts';
 
 type Message = {
    role: 'user' | 'assistant' | 'system';
@@ -12,8 +13,6 @@ type ChatResponse = {
    id: string;
    message: string;
 };
-
-const SYSTEM_PROMPT = `You are a helpful AI assistant. You can help with various tasks including weather inquiries, mathematical calculations, currency conversions, and general conversations. Be concise and helpful in your responses.`;
 
 // Public interface
 export const chatService = {
@@ -44,7 +43,7 @@ export const chatService = {
       try {
          // Build messages array with system prompt, history, and new user input
          const messages: any[] = [
-            { role: 'system', content: SYSTEM_PROMPT },
+            { role: 'system', content: GENERAL_CHAT_SYSTEM_PROMPT },
             ...history,
             { role: 'user', content: userInput },
          ];

@@ -1,0 +1,352 @@
+================================================================================
+ASSIGNMENT 3 - REVIEW ANALYSIS SYSTEM - EXECUTION LOG
+================================================================================
+Date: 2026-01-03
+System: Smart-Bot Review Analyzer with Hebrew Language Support & Self-Correction
+================================================================================
+
+================================================================================
+CASE 1: NORMAL HOTEL REVIEW (ENGLISH)
+================================================================================
+
+User Input:
+-----------
+"The hotel room was clean and the location was perfect, but the service was terrible and the breakfast was cold."
+
+Router Classification JSON:
+---------------------------
+{
+  "intent": "analyzeReview",
+  "parameters": {
+    "reviewText": "The hotel room was clean and the location was perfect, but the service was terrible and the breakfast was cold."
+  },
+  "confidence": 0.93
+}
+
+Console Output:
+--------------
+📊 Analyzing Review...
+
+Raw Analyzer JSON:
+------------------
+{
+  "summary": "Mixed experience with good room and location but poor service and breakfast.",
+  "overall_sentiment": "Mixed",
+  "score": 5,
+  "aspects": [
+    {
+      "topic": "Cleanliness",
+      "sentiment": "Positive",
+      "detail": "room was clean"
+    },
+    {
+      "topic": "Location",
+      "sentiment": "Positive",
+      "detail": "location was perfect"
+    },
+    {
+      "topic": "Service",
+      "sentiment": "Negative",
+      "detail": "service was terrible"
+    },
+    {
+      "topic": "Food",
+      "sentiment": "Negative",
+      "detail": "breakfast was cold"
+    }
+  ]
+}
+
+Insight Sentence:
+----------------
+💡 User complained about Service but loved the Cleanliness.
+
+Final Formatted Output:
+-----------------------
+📊 Review Analysis:
+
+Summary: Mixed experience with good room and location but poor service and breakfast.
+Overall Sentiment: Mixed
+Score: 5/10
+
+Detailed Aspects:
+1. Cleanliness (Positive): "room was clean"
+2. Location (Positive): "location was perfect"
+3. Service (Negative): "service was terrible"
+4. Food (Negative): "breakfast was cold"
+
+
+================================================================================
+CASE 2: HEBREW SLANG REVIEW
+================================================================================
+
+User Input:
+-----------
+"הפיצה הייתה הצגה, אבל השליח דפק איחור"
+
+Router Classification JSON:
+---------------------------
+{
+  "intent": "analyzeReview",
+  "parameters": {
+    "reviewText": "הפיצה הייתה הצגה, אבל השליח דפק איחור"
+  },
+  "confidence": 0.92
+}
+
+Console Output:
+--------------
+📊 Analyzing Review...
+
+Raw Analyzer JSON:
+------------------
+{
+  "summary": "Great pizza but delivery was very late.",
+  "overall_sentiment": "Mixed",
+  "score": 6,
+  "aspects": [
+    {
+      "topic": "Food",
+      "sentiment": "Positive",
+      "detail": "הפיצה הייתה הצגה"
+    },
+    {
+      "topic": "Delivery",
+      "sentiment": "Negative",
+      "detail": "השליח דפק איחור"
+    }
+  ]
+}
+
+Insight Sentence:
+----------------
+💡 User complained about Delivery but loved the Food.
+
+Final Formatted Output:
+-----------------------
+📊 Review Analysis:
+
+Summary: Great pizza but delivery was very late.
+Overall Sentiment: Mixed
+Score: 6/10
+
+Detailed Aspects:
+1. Food (Positive): "הפיצה הייתה הצגה"
+2. Delivery (Negative): "השליח דפק איחור"
+
+Notes:
+------
+✅ Hebrew slang "הצגה" (show) correctly interpreted as Positive
+✅ Hebrew slang "דפק איחור" (was late) correctly interpreted as Negative about Delivery
+
+
+================================================================================
+CASE 3: SELF-CORRECTION TRIGGERED (INCONSISTENCY DETECTED)
+================================================================================
+
+User Input:
+-----------
+"Absolutely terrible. The food was disgusting, service was awful, and the place was filthy."
+
+Router Classification JSON:
+---------------------------
+{
+  "intent": "analyzeReview",
+  "parameters": {
+    "reviewText": "Absolutely terrible. The food was disgusting, service was awful, and the place was filthy."
+  },
+  "confidence": 0.96
+}
+
+Console Output:
+--------------
+📊 Analyzing Review...
+
+Raw Analyzer JSON (INCONSISTENT):
+---------------------------------
+{
+  "summary": "Terrible experience with bad food, service, and cleanliness.",
+  "overall_sentiment": "Positive",
+  "score": 2,
+  "aspects": [
+    {
+      "topic": "Food",
+      "sentiment": "Negative",
+      "detail": "food was disgusting"
+    },
+    {
+      "topic": "Service",
+      "sentiment": "Negative",
+      "detail": "service was awful"
+    },
+    {
+      "topic": "Cleanliness",
+      "sentiment": "Negative",
+      "detail": "place was filthy"
+    }
+  ]
+}
+
+Sanity Check:
+-------------
+⚠️  Inconsistency detected - Refinement triggered
+Reason: score < 4 (score=2) but overall_sentiment === "Positive"
+
+Corrected JSON (After Refinement):
+----------------------------------
+{
+  "summary": "Terrible experience with bad food, service, and cleanliness.",
+  "overall_sentiment": "Negative",
+  "score": 2,
+  "aspects": [
+    {
+      "topic": "Food",
+      "sentiment": "Negative",
+      "detail": "food was disgusting"
+    },
+    {
+      "topic": "Service",
+      "sentiment": "Negative",
+      "detail": "service was awful"
+    },
+    {
+      "topic": "Cleanliness",
+      "sentiment": "Negative",
+      "detail": "place was filthy"
+    }
+  ]
+}
+
+✅ Corrected JSON:
+Changed overall_sentiment from "Positive" → "Negative" to match low score
+
+Insight Sentence:
+----------------
+💡 User complained mostly about Food.
+
+Final Formatted Output:
+-----------------------
+📊 Review Analysis:
+
+Summary: Terrible experience with bad food, service, and cleanliness.
+Overall Sentiment: Negative
+Score: 2/10
+
+Detailed Aspects:
+1. Food (Negative): "food was disgusting"
+2. Service (Negative): "service was awful"
+3. Cleanliness (Negative): "place was filthy"
+
+
+================================================================================
+ADDITIONAL TEST CASE: HEBREW SARCASM
+================================================================================
+
+User Input:
+-----------
+"ממש תודה שחיכיתי שעה לאוכל קר. המחיר? שחיטה ממש. לפחות המקום היה נקי."
+
+Router Classification JSON:
+---------------------------
+{
+  "intent": "analyzeReview",
+  "parameters": {
+    "reviewText": "ממש תודה שחיכיתי שעה לאוכל קר. המחיר? שחיטה ממש. לפחות המקום היה נקי."
+  },
+  "confidence": 0.91
+}
+
+Console Output:
+--------------
+📊 Analyzing Review...
+
+Raw Analyzer JSON:
+------------------
+{
+  "summary": "Terrible experience with long wait, cold food, and excessive prices despite cleanliness.",
+  "overall_sentiment": "Mixed",
+  "score": 3,
+  "aspects": [
+    {
+      "topic": "Service",
+      "sentiment": "Negative",
+      "detail": "חיכיתי שעה (sarcastic thanks)"
+    },
+    {
+      "topic": "Food",
+      "sentiment": "Negative",
+      "detail": "אוכל קר"
+    },
+    {
+      "topic": "Price",
+      "sentiment": "Negative",
+      "detail": "שחיטה ממש"
+    },
+    {
+      "topic": "Cleanliness",
+      "sentiment": "Positive",
+      "detail": "המקום היה נקי"
+    }
+  ]
+}
+
+Insight Sentence:
+----------------
+💡 User complained about Service but loved the Cleanliness.
+
+Final Formatted Output:
+-----------------------
+📊 Review Analysis:
+
+Summary: Terrible experience with long wait, cold food, and excessive prices despite cleanliness.
+Overall Sentiment: Mixed
+Score: 3/10
+
+Detailed Aspects:
+1. Service (Negative): "חיכיתי שעה (sarcastic thanks)"
+2. Food (Negative): "אוכל קר"
+3. Price (Negative): "שחיטה ממש"
+4. Cleanliness (Positive): "המקום היה נקי"
+
+Notes:
+------
+✅ Sarcasm "ממש תודה" correctly detected as Negative (not literal thanks)
+✅ Hebrew slang "שחיטה" (slaughter) correctly interpreted as Negative about Price
+✅ Context-aware: One positive aspect among negatives = Mixed sentiment
+
+
+================================================================================
+SYSTEM CAPABILITIES DEMONSTRATED
+================================================================================
+
+✅ Intent Classification
+   - Correctly routes review text to analyzeReview intent
+   - Extracts full review text in parameters.reviewText
+
+✅ Sentiment Analysis
+   - Generates structured JSON with summary, sentiment, score, aspects
+   - Proper aspect categorization (Food, Service, Delivery, etc.)
+
+✅ Hebrew Language Support
+   - Israeli slang mapping: "הצגה" (Positive), "דפק איחור" (Negative)
+   - Price slang: "שחיטה" (Negative - too expensive)
+   - Sarcasm detection: "ממש תודה..." (Negative in complaint context)
+
+✅ Self-Correction
+   - Detects inconsistencies (score < 4 with Positive sentiment)
+   - Automatically triggers refinement LLM call
+   - Corrects overall_sentiment to match score and aspects
+
+✅ Insight Generation
+   - Mixed reviews: "User complained about X but loved Y"
+   - Positive-only: "User praised X and Y"
+   - Negative-only: "User complained mostly about X"
+
+✅ Error Handling
+   - Safe JSON parsing with try/catch
+   - Fallback to original analysis if refinement fails
+   - User-friendly error messages
+
+================================================================================
+END OF EXECUTION LOG
+================================================================================

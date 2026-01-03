@@ -1,42 +1,34 @@
 [
   {
     "role": "user",
-    "content": "כמה חם בתל אביב?"
+    "content": "\"Stayed at this hotel... clean... breakfast okay...\""
   },
   {
     "role": "assistant",
-    "content": "Weather in Tel Aviv, IL: light rain. Temperature: 14.12°C (feels like 13.89°C). Humidity: 88%. Wind speed: 2.06 m/s."
+    "content": "📊 Review Analysis:\n\nSummary: The hotel was clean with an okay breakfast.\nOverall Sentiment: Neutral\nScore: 5/10\n\nDetailed Aspects:\n1. Cleanliness (Positive): \"clean\"\n2. Food (Neutral): \"breakfast okay\"\n"
   },
   {
     "role": "user",
-    "content": "כמה זה דולר בשקלים?"
+    "content": "הפיצה הייתה הצגה, אבל השליח דפק איחור"
   },
   {
     "role": "assistant",
-    "content": "1 USD = 3.75 ILS (Israeli Shekel)"
+    "content": "📊 Review Analysis:\n\nSummary: Great pizza but delivery was very late.\nOverall Sentiment: Mixed\nScore: 6/10\n\nDetailed Aspects:\n1. Food (Positive): \"הפיצה הייתה הצגה\"\n2. Delivery (Negative): \"השליח דפק איחור\"\n"
   },
   {
     "role": "user",
-    "content": "כמה זה 150 ועוד 20?"
+    "content": "תשמעו, המבורגר כזה עוד לא אכלתי, פשוט ואו! אבל המחיר? שחיטה. וממש תודה למארחת שגלגלה עיניים כשביקשנו עוד מפיות"
   },
   {
     "role": "assistant",
-    "content": "The result of 150 + 20 is 170"
+    "content": "📊 Review Analysis:\n\nSummary: Amazing burger but the price is excessive and the hostess was unhelpful.\nOverall Sentiment: Mixed\nScore: 4/10\n\nDetailed Aspects:\n1. Food (Positive): \"המבורגר כזה עוד לא אכלתי, פשוט ואו!\"\n2. Price (Negative): \"המחיר? שחיטה\"\n3. Service (Negative): \"ממש תודה למארחת שגלגלה עיניים (sarcasm detected)\"\n"
   },
   {
     "role": "user",
-    "content": "האם יש קופים בדובאי?"
+    "content": "לא משהו"
   },
   {
     "role": "assistant",
-    "content": "כן, ישנם קופים בדובאי, בעיקר בגני חיות ובפארקים. ישנם גם מקומות שמציעים מופעים עם קופים, אך חשוב לציין שהחיים בטבע של קופים באזור לא קיימים."
-  },
-  {
-    "role": "user",
-    "content": "מה היתה השאלה הקודמת שלי?"
-  },
-  {
-    "role": "assistant",
-    "content": "השאלה הקודמת שלך הייתה: \"האם יש קופים בדובאי?\""
+    "content": "📊 Review Analysis:\n\nSummary: Not particularly good or impressive.\nOverall Sentiment: Negative\nScore: 4/10\n"
   }
 ]

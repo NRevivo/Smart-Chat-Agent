@@ -9,12 +9,14 @@ const ClassificationSchema = z.object({
       'getWeather',
       'calculateMath',
       'getExchangeRate',
+      'analyzeReview',
       'generalChat',
    ]),
    parameters: z.object({
       city: z.string().optional(),
       expression: z.string().optional(),
       currencyCode: z.string().optional(),
+      reviewText: z.string().optional(),
    }),
    confidence: z.number().min(0).max(1),
 });
